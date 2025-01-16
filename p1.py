@@ -28,7 +28,6 @@ class Perceptron:
             results.append(1 if self.sigmoid(z) >= 0.5 else 0)
         return results
 
-
 # Input data
 x = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
 y_and = np.array([0, 0, 0, 1])  # AND gate outputs
