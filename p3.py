@@ -33,9 +33,6 @@ decoded = Dense(784, activation='sigmoid')(decoded)
 autoencoder = Model(input_img, decoded)
 
 # Compile model
-autoencoder.compile(optimizer='adam', loss='mse')
-
-# Compile the model
 autoencoder.compile(optimizer=Adam(learning_rate=0.001), loss='mse')
 
 # Train the autoencoder
