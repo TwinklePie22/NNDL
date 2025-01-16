@@ -1,48 +1,32 @@
 import numpy as np
 
-class Perceptron:
-    def __init__(self, lr=0.1, epochs=1000):
-        self.lr = lr
-        self.epochs = epochs
-        self.weights = None
-        self.bias = None
-
-    def sigmoid(self, x):
-        return 1 / (1 + np.exp(-x))
-
-    def fit(self, x, y):
-        self.weights = np.zeros(x.shape[1])
-        self.bias = 0
-        for _ in range(self.epochs):
-            for xi, yi in zip(x, y):
-                z = np.dot(xi, self.weights) + self.bias
-                y_pred = self.sigmoid(z)
-                error = yi - y_pred
-                self.weights += self.lr * error * xi
-                self.bias += self.lr * error
-
-    def predict(self, x):
-        results = []
-        for xi in x:
-            z = np.dot(xi, self.weights) + self.bias
-            results.append(1 if self.sigmoid(z) >= 0.5 else 0)
-        return results
-
-# Input data
 x = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
-y_and = np.array([0, 0, 0, 1])  # AND gate outputs
-y_or = np.array([0, 1, 1, 1])   # OR gate outputs
 
-# Train and test for AND gate
-perceptron_and = Perceptron()
-perceptron_and.fit(x, y_and)
-print("AND gate predictions:")
-for xi, pred in zip(x, perceptron_and.predict(x)):
-    print(f"Input: {xi} - Prediction: {pred}")
+def train_perceptron(x, y, w1, w2, bias, learning_rate, epochs=500000):
+    for epoch in range(epochs):
+        for i in range(4):
+            z = x[i][0] * w1 + x[i][1] * w2 + bias
+            result = 1 / (1 + np.exp(-z))
+            error = y[i] - result
+            w1 += learning_rate * error * x[i][0]
+            w2 += learning_rate * error * x[i][1]
+            bias += learning_rate * error
+    return w1, w2, bias
 
-# Train and test for OR gate
-perceptron_or = Perceptron()
-perceptron_or.fit(x, y_or)
-print("\nOR gate predictions:")
-for xi, pred in zip(x, perceptron_or.predict(x)):
-    print(f"Input: {xi} - Prediction: {pred}")
+def test_perceptron(x, w1, w2, bias):
+    for i in range(4):
+        z = x[i][0] * w1 + x[i][1] * w2 + bias
+        result = 1 / (1 + np.exp(-z))
+        print(f"Input: {x[i]}, Output: {result:.4f}, Predicted: {1 if result >= 0.5 else 0}")
+
+# AND gate
+y_and = np.array([0, 0, 0, 1])
+w1, w2, bias = train_perceptron(x, y_and, 0.8, 0.9, 0.25, 0.1)
+print("AND gate results:")
+test_perceptron(x, w1, w2, bias)
+
+# OR gate
+y_or = np.array([0, 1, 1, 1])
+w1, w2, bias = train_perceptron(x, y_or, 0.8, 0.9, 0.25, 0.1)
+print("\nOR gate results:")
+test_perceptron(x, w1, w2, bias)
