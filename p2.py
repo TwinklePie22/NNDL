@@ -7,66 +7,43 @@ from sklearn.metrics import accuracy_score
 import tensorflow as tf
 from tensorflow.keras import layers, models
 
-# Load datasets
-diabetes_data = load_diabetes()
-X_diabetes = diabetes_data.data
-y_diabetes = diabetes_data.target
-y_diabetes = (y_diabetes > y_diabetes.mean()).astype(int)  # Convert to binary classification
+# Load datasets and preprocess
+def load_data():
+    diabetes = load_diabetes()
+    cancer = load_breast_cancer()
+    sonar = pd.read_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/undocumented/connectionist-bench/sonar/sonar.all-data", header=None)
 
-cancer_data = load_breast_cancer()
-X_cancer = cancer_data.data
-y_cancer = cancer_data.target
+    X_diabetes, y_diabetes = diabetes.data, (diabetes.target > diabetes.target.mean()).astype(int)
+    X_cancer, y_cancer = cancer.data, cancer.target
+    X_sonar, y_sonar = sonar.iloc[:, :-1].values, sonar.iloc[:, -1].map({'R': 0, 'M': 1}).values
 
-sonar_data = pd.read_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/undocumented/connectionist-bench/sonar/sonar.all-data", header=None)
-X_sonar = sonar_data.iloc[:, :-1].values
-y_sonar = sonar_data.iloc[:, -1].map({'R': 0, 'M': 1}).values  # Convert to binary
+    return (X_diabetes, y_diabetes), (X_cancer, y_cancer), (X_sonar, y_sonar)
 
-# Function to create and train the model
-def create_and_train_model(X, y, activation_function):
-    # Split the dataset
+# Create and train model
+def create_and_train_model(X, y, activation):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    # Standardize the data
     scaler = StandardScaler()
-    X_train = scaler.fit_transform(X_train)
-    X_test = scaler.transform(X_test)
+    X_train, X_test = scaler.fit_transform(X_train), scaler.transform(X_test)
 
-    # Create the model
     model = models.Sequential([
-        layers.Input(shape=(X_train.shape[1],)),  # Use Input layer for the shape
-        layers.Dense(64, activation=activation_function),
-        layers.Dense(32, activation=activation_function),
-        layers.Dense(1, activation='sigmoid')  # Binary classification output
+        layers.Input(shape=(X_train.shape[1],)),
+        layers.Dense(64, activation=activation),
+        layers.Dense(32, activation=activation),
+        layers.Dense(1, activation='sigmoid')
     ])
-
-    # Compile the model
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+    model.fit(X_train, y_train, epochs=100, batch_size=10, verbose=0)
+    y_pred = (model.predict(X_test) > 0.5).astype(int)
+    return accuracy_score(y_test, y_pred)
 
-    # Train the model
-    model.fit(X_train, y_train, epochs=100, batch_size=10, verbose=0)  # You can change verbose to 1 for progress info
+# Evaluate model with a single activation function
+def evaluate_models(activation):
+    datasets = load_data()
+    for dataset, name in zip(datasets, ['Diabetes', 'Cancer', 'Sonar']):
+        X, y = dataset
+        accuracy = create_and_train_model(X, y, activation)
+        print(f"{name} Dataset Accuracy: {accuracy:.2f}")
 
-    # Evaluate the model
-    y_pred = model.predict(X_test)
-    y_pred = (y_pred > 0.5).astype(int)
-    accuracy = accuracy_score(y_test, y_pred)
-    
-    return accuracy
-
-# Activations to test
-activations = ['relu', 'sigmoid', 'tanh']
-
-# Evaluate on each dataset for each activation function
-for activation in activations:
-    print(f"\nActivation Function: {activation}\n")
-
-    # Evaluate on Diabetes Dataset
-    diabetes_accuracy = create_and_train_model(X_diabetes, y_diabetes, activation)
-    print(f"Diabetes Dataset Accuracy: {diabetes_accuracy:.2f}")
-
-    # Evaluate on Cancer Dataset
-    cancer_accuracy = create_and_train_model(X_cancer, y_cancer, activation)
-    print(f"Cancer Dataset Accuracy: {cancer_accuracy:.2f}")
-
-    # Evaluate on Sonar Dataset
-    sonar_accuracy = create_and_train_model(X_sonar, y_sonar, activation)
-    print(f"Sonar Dataset Accuracy: {sonar_accuracy:.2f}")
+# Choose a single activation function
+activation_function = 'relu'  # Example: Use 'relu', 'sigmoid', or 'tanh'
+evaluate_models(activation_function)
