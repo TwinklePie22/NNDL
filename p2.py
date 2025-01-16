@@ -7,7 +7,6 @@ from sklearn.metrics import accuracy_score
 import tensorflow as tf
 from tensorflow.keras import layers, models
 
-# Load datasets and preprocess
 def load_data():
     diabetes = load_diabetes()
     cancer = load_breast_cancer()
@@ -23,7 +22,6 @@ def load_data():
 
     return (X_diabetes, y_diabetes), (X_cancer, y_cancer), (X_sonar, y_sonar)
 
-# Create and train model
 def create_and_train_model(X, y, activation):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     scaler = StandardScaler()
@@ -40,7 +38,6 @@ def create_and_train_model(X, y, activation):
     y_pred = (model.predict(X_test) > 0.5).astype(int)
     return accuracy_score(y_test, y_pred)
 
-# Evaluate model with a single activation function
 def evaluate_models(activation):
     datasets = load_data()
     for dataset, name in zip(datasets, ['Diabetes', 'Cancer', 'Sonar']):
@@ -48,6 +45,5 @@ def evaluate_models(activation):
         accuracy = create_and_train_model(X, y, activation)
         print(f"{name} Dataset Accuracy: {accuracy:.2f}")
 
-# Choose a single activation function
 activation_function = 'relu'  # Example: Use 'relu', 'sigmoid', or 'tanh'
 evaluate_models(activation_function)
