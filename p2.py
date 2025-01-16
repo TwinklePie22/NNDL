@@ -13,9 +13,12 @@ def load_data():
     cancer = load_breast_cancer()
     sonar = pd.read_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/undocumented/connectionist-bench/sonar/sonar.all-data", header=None)
 
-    X_diabetes, y_diabetes = diabetes.data, (diabetes.target > diabetes.target.mean()).astype(int)
-    X_cancer, y_cancer = cancer.data, cancer.target
-    X_sonar, y_sonar = sonar.iloc[:, :-1].values, sonar.iloc[:, -1].map({'R': 0, 'M': 1}).values
+    X_diabetes = diabetes.data
+    y_diabetes = (diabetes.target > diabetes.target.mean()).astype(int)
+    X_cancer = cancer.data
+    y_cancer = cancer.target
+    X_sonar = sonar.iloc[:, :-1].values
+    y_sonar = sonar.iloc[:, -1].map({'R': 0, 'M': 1}).values
 
     return (X_diabetes, y_diabetes), (X_cancer, y_cancer), (X_sonar, y_sonar)
 
