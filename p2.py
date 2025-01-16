@@ -11,7 +11,7 @@ def load_data():
     diabetes = load_diabetes()
     cancer = load_breast_cancer()
     sonar = pd.read_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/undocumented/connectionist-bench/sonar/sonar.all-data", header=None)
-    #  sonar = pd.read_csv("path/to/your/sonar.txt", delimiter=',', header=None)
+    #  sonar = pd.read_csv(r"path/to/your/sonar.txt", delimiter=',', header=None)
 
     X_diabetes = diabetes.data
     y_diabetes = (diabetes.target > diabetes.target.mean()).astype(int)
