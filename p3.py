@@ -15,32 +15,25 @@ x_test = x_test.astype('float32') / 255.0
 x_train = x_train.reshape(-1, 28 * 28)
 x_test = x_test.reshape(-1, 28 * 28)
 
-# Define a stacked autoencoder
-def build_stacked_autoencoder(input_dim, encoding_dim):
-    # Encoder
-    input_layer = Input(shape=(input_dim,))
-    encoded = Dense(encoding_dim[0], activation='relu')(input_layer)
-    for units in encoding_dim[1:]:
-        encoded = Dense(units, activation='relu')(encoded)
+# Set encoding dimension
+encoding_dim = 64  
 
-    # Decoder
-    decoding_dim = encoding_dim[::-1]
-    decoded = Dense(decoding_dim[0], activation='relu')(encoded)
-    for units in decoding_dim[1:-1]:
-        decoded = Dense(units, activation='relu')(decoded)
-    output_layer = Dense(input_dim, activation='sigmoid')(decoded)
+# Define encoder model
+input_img = Input(shape=(784,))
+encoded = Dense(256, activation='relu')(input_img)
+encoded = Dense(128, activation='relu')(encoded)
+encoded = Dense(encoding_dim, activation='relu')(encoded)
 
-    # Autoencoder model
-    autoencoder = Model(input_layer, output_layer)
+# Define decoder model
+decoded = Dense(128, activation='relu')(encoded)
+decoded = Dense(256, activation='relu')(decoded)
+decoded = Dense(784, activation='sigmoid')(decoded)
 
-    # Encoder model for feature extraction
-    encoder = Model(input_layer, encoded)
+# Define autoencoder model
+autoencoder = Model(input_img, decoded)
 
-    return autoencoder, encoder
-
-# Build the autoencoder
-encoding_dim = [128, 64, 32]  # Layers in the encoder
-autoencoder, encoder = build_stacked_autoencoder(input_dim=784, encoding_dim=encoding_dim)
+# Compile model
+autoencoder.compile(optimizer='adam', loss='mse')
 
 # Compile the model
 autoencoder.compile(optimizer=Adam(learning_rate=0.001), loss='mse')
@@ -67,7 +60,7 @@ plt.show()
 reconstructed = autoencoder.predict(x_test)
 
 # Visualize original and reconstructed images
-n = 10  # Number of images to display
+n = 5 # Number of images to display
 plt.figure(figsize=(20, 4))
 for i in range(n):
     # Original images
