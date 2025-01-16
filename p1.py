@@ -5,7 +5,7 @@ x = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
 def sigmoid(z):
     return 1 / (1 + np.exp(-z))
 
-def train_perceptron(x, y, w1, w2, bias, learning_rate, epochs=500000):
+def train_perceptron(x, y, w1, w2, bias, learning_rate, epochs=5000):
     for epoch in range(epochs):
         for i in range(4):
             z = x[i][0] * w1 + x[i][1] * w2 + bias
